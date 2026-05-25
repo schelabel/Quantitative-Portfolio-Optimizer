@@ -19,70 +19,54 @@ double Asset::calculateDailyMeanReturn() const {
     return sum / log_returns.size();
 }
 
-double Asset::calculateDailyVolatility() {
-    if (prices.size() < 3) {
-        return 0.0;
-    }
-
-    double daily_mean = calculateDailyMeanReturn();
-
-    std::vector<double> returns;
-
-    for (size_t i = 1; i < prices.size(); ++i){
-        double daily_return = (prices[i] - prices[i-1]) / prices[i-1];
-        returns.push_back(daily_return);
-    }
-
+double Asset::calculateDailyVolatility() const {
+    if (log_returns.size() < 2) return 0.0;
+    
+    double mean = calculateDailyMeanReturn();
     double variance_sum = 0.0;
-    for (size_t i = 0; i < returns.size(); ++i){
-        variance_sum += (returns[i] - daily_mean) * (returns[i] - daily_mean);
+    
+    for (double r : log_returns) {
+        variance_sum += (r - mean) * (r - mean);
     }
-
-    double variance = variance_sum / (returns.size() - 1);
-
-    return std::sqrt(variance);
+    
+    return std::sqrt(variance_sum / (log_returns.size() - 1));
 }
 
-double Asset::calculateSharpeRatio(double risk_free_rate){
-    double expected_return = calculateAnnualExpectedReturn(); 
-    double volatility = calculateAnnualVolatility();
-
-    if (volatility == 0.0) {
-        return 0.0; 
-    }
-
-    return (expected_return - risk_free_rate) / volatility;
+double Asset::calculateSharpeRatio(double risk_free_rate) const {
+    double vol = calculateAnnualVolatility();
+    if (vol == 0.0) return 0.0;
+    
+    return (calculateAnnualExpectedReturn() - risk_free_rate) / vol;
 }
-
-double Asset::calculateKellyCriterion(double risk_free_rate){
-    double expected_return = calculateAnnualExpectedReturn(); 
-    double volatility = calculateAnnualVolatility();
-
-    if (volatility == 0.0) {
-        return 0.0; 
-    }
-
-    return (expected_return - risk_free_rate) / (volatility * volatility);
-}
-
 
 // === TRADITIONAL ASSET FUNCTIONS ===
 
-double TraditionalAsset::calculateAnnualVolatility() {
+TraditionalAsset::TraditionalAsset(const std::string& ticker, const std::string& isin, const std::string& name, const std::string& currency, const std::vector<double>& prices, const std::vector<std::string>& dates)
+    : Asset(ticker, isin, name, currency, prices, dates) 
+{
+    calculateLogReturns(); 
+}
+
+double TraditionalAsset::calculateAnnualVolatility() const {
     return calculateDailyVolatility() * std::sqrt(252);
 }
 
-double TraditionalAsset::calculateAnnualExpectedReturn() {
+double TraditionalAsset::calculateAnnualExpectedReturn() const {
     return calculateDailyMeanReturn() * 252;
 }
 
-
 // === CRYPTO ASSET FUNCTIONS ===
 
-double CryptoAsset::calculateAnnualVolatility() {
+CryptoAsset::CryptoAsset(const std::string& ticker, const std::string& isin, const std::string& name, const std::string& currency, const std::vector<double>& prices, const std::vector<std::string>& dates)
+    : Asset(ticker, isin, name, currency, prices, dates) 
+{
+    calculateLogReturns(); 
+}
+
+double CryptoAsset::calculateAnnualVolatility() const {
     return calculateDailyVolatility() * std::sqrt(365);
 }
 
-double CryptoAsset::calculateAnnualExpectedReturn() {
+double CryptoAsset::calculateAnnualExpectedReturn() const {
     return calculateDailyMeanReturn() * 365;
 }

@@ -6,6 +6,7 @@
 
 struct PriceData {
     std::vector<double> prices;
+    std::vector<std::string> dates;
     std::string start_date;
     std::string end_date;
 };
@@ -71,6 +72,7 @@ public:
                 try {
                     double close_price = std::stod(columns[close_idx]);
                     result.prices.push_back(close_price); 
+                    result.dates.push_back(clean_date);
                 } catch (...) {
                 }
             }

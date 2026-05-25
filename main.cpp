@@ -61,37 +61,33 @@ int main(int argc, char* argv[]) {
 
         if (fs::exists(expected_filepath)) {
             
-            std::vector<double> prices = CSVHandler::readPrices(expected_filepath);
+            auto [prices, start_date, end_date] = CSVHandler::readPrices(expected_filepath);
             
             if (!prices.empty()) {
+                Asset* new_asset = nullptr;
+
                 if (meta.type == "Traditional") {
-                    Asset* new_asset = new TraditionalAsset(ticker, meta.isin, meta.name, meta.currency, prices);
-                    portfolio.push_back(new_asset);
-                    std::cout << "Added Traditional Asset: " << meta.name << " (" << ticker << ")\n";
-                } 
-                else if (meta.type == "Crypto") {
-                    Asset* new_asset = new CryptoAsset(ticker, meta.isin, meta.name, meta.currency, prices);
-                    portfolio.push_back(new_asset);
-                    std::cout << "Added Crypto Asset: " << meta.name << " (" << ticker << ")\n";
-                }
-                else {
-                    std::cerr << "Error: Unknown type in metadata.csv: " << meta.type << "\n";
+                    new_asset = new TraditionalAsset(ticker, meta.isin, meta.name, meta.currency, prices);
+                } else if (meta.type == "Crypto") {
+                    new_asset = new CryptoAsset(ticker, meta.isin, meta.name, meta.currency, prices);
                 }
 
-                std::cout << "  -> Successfully read " << prices.size() << " prices.\n";
-
+                if (new_asset) {
+                    portfolio.push_back(new_asset);
+                    
+                    std::cout << "[+] " << meta.name << " (" << ticker << ") | " << meta.currency << "\n";
+                    std::cout << "    └─ Data range: " << start_date << " ➔ " << end_date 
+                            << " (" << prices.size() << " days)\n\n";
+                } else {
+                    std::cerr << "[!] Error: Unknown type in metadata: " << meta.type << "\n";
+                }
             } else {
-                std::cerr << "Warning: The file exists but is empty -> " << expected_filepath << "\n";
+                std::cerr << "[!] Warning: File exists but no data found -> " << expected_filepath << "\n";
             }
-        } 
-        else {
-            std::cerr << "Error: Missing CSV file for " << meta.name << " (" << expected_filepath << ")\n";
+        } else {
+            std::cerr << "[!] Error: Missing file -> " << expected_filepath << "\n";
         }
-    }
-
-    std::cout << "\n========================================\n";
-    std::cout << "Portfolio loaded with " << portfolio.size() << " assets." << std::endl;
-    std::cout << "========================================\n\n";
+    }    
 
     for (Asset* asset : portfolio) {
         delete asset;

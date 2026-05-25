@@ -4,19 +4,26 @@
 #include <vector>
 #include <string>
 
+struct PriceData {
+    std::vector<double> prices;
+    std::string start_date;
+    std::string end_date;
+};
+
 class CSVHandler {
 public:
-    static std::vector<double> readPrices(const std::string& filename) {
-        std::vector<double> extracted_prices;
-        std::ifstream file(filename);
+    static PriceData readPrices(const std::string& filepath) {
+
+        PriceData result;
+        
+        std::ifstream file(filepath);
 
         if (!file.is_open()) {
-            std::cerr << "Error: Couldn't open file: " << filename << std::endl;
-            return extracted_prices;
+            std::cerr << "Error: Couldn't open file: " << filepath << std::endl;
+            return result;
         }
 
         std::string line;
-
         int close_idx = -1;
 
         if (std::getline(file, line)) {
@@ -34,10 +41,12 @@ public:
         }
 
         if (close_idx == -1) {
-            std::cerr << "Error: 'Close' column not found in " << filename << std::endl;
-            return extracted_prices;
+            std::cerr << "Error: 'Close' column not found in " << filepath << std::endl;
+            return result;
         }
         
+        bool is_first_line = true;
+
         while (std::getline(file, line)){
             std::stringstream ss(line);
 
@@ -49,15 +58,25 @@ public:
             }
 
             if (columns.size() > close_idx) {
+                
+                std::string raw_date = columns[0];
+                std::string clean_date = (raw_date.length() >= 10) ? raw_date.substr(0, 10) : raw_date;
+
+                if (is_first_line) {
+                    result.start_date = clean_date; 
+                    is_first_line = false;
+                }
+                result.end_date = clean_date;
+                
                 try {
                     double close_price = std::stod(columns[close_idx]);
-                    extracted_prices.push_back(close_price); 
-                }catch (...) {}
+                    result.prices.push_back(close_price); 
+                } catch (...) {
+                }
             }
-
         }
         
         file.close();
-        return extracted_prices;
+        return result;
     }
 };

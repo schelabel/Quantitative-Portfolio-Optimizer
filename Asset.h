@@ -12,9 +12,11 @@ protected:
     std::string name;
     std::string currency;
     std::vector<double> prices;
+    std::vector<double> log_returns;
 
-    double calculateDailyMeanReturn();
-    double calculateDailyVolatility();
+    void calculateLogReturns();
+    double calculateDailyMeanReturn() const;
+    double calculateDailyVolatility() const;
 
 public:
     Asset(const std::string& ticker, const std::string& isin, const std::string& name, const std::string& currency, const std::vector<double>& prices)
@@ -22,15 +24,17 @@ public:
 
     virtual ~Asset() = default;
 
-    virtual double calculateAnnualVolatility() = 0;
-    virtual double calculateAnnualExpectedReturn() = 0; 
+    virtual double calculateAnnualVolatility() const = 0;
+    virtual double calculateAnnualExpectedReturn() const = 0; 
 
-    double calculateSharpeRatio(double risk_free_rate);
-    double calculateKellyCriterion(double risk_free_rate);
+    double calculateSharpeRatio(double risk_free_rate) const;
 
     std::string getTicker() const { return ticker; }
     std::string getName() const { return name; }
     std::string getCurrency() const { return currency; }
+
+    const std::vector<double>& getLogReturns() const { return log_returns; } 
+    const std::vector<double>& getPrices() const { return prices; }
 };
 
 class TraditionalAsset : public Asset {

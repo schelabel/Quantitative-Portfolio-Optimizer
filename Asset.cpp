@@ -1,7 +1,23 @@
 #include "Asset.h"
-#include <cmath>
+#include <numeric>
+#include <iostream>
 
 // === ASSET BASE CLASS FUNCTIONS ===
+
+void Asset::calculateLogReturns() {
+    if (prices.size() < 2) return;
+
+    log_returns.reserve(prices.size() - 1);
+    for (size_t i = 1; i < prices.size(); ++i) {
+        log_returns.push_back(std::log(prices[i] / prices[i - 1]));
+    }
+}
+
+double Asset::calculateDailyMeanReturn() const {
+    if (log_returns.empty()) return 0.0;
+    double sum = std::accumulate(log_returns.begin(), log_returns.end(), 0.0);
+    return sum / log_returns.size();
+}
 
 double Asset::calculateDailyVolatility() {
     if (prices.size() < 3) {
@@ -25,21 +41,6 @@ double Asset::calculateDailyVolatility() {
     double variance = variance_sum / (returns.size() - 1);
 
     return std::sqrt(variance);
-}
-
-double Asset::calculateDailyMeanReturn() {
-    if (prices.size() < 2) {
-        return 0.0;
-    }
-
-    double returns_sum = 0.0;
-    
-    for (size_t i = 1; i < prices.size(); ++i) {
-        double daily_return = (prices[i] - prices[i-1]) / prices[i-1];
-        returns_sum += daily_return;
-    }
-
-    return returns_sum / (prices.size() - 1);
 }
 
 double Asset::calculateSharpeRatio(double risk_free_rate){

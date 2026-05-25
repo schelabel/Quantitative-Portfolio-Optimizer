@@ -55,7 +55,7 @@ double Asset::calculateSharpeRatio(double risk_free_rate){
 
 double Asset::calculateKellyCriterion(double risk_free_rate){
     double expected_return = calculateAnnualExpectedReturn(); 
-    double volatility = calculateAnnualVolatility;
+    double volatility = calculateAnnualVolatility();
 
     if (volatility == 0.0) {
         return 0.0; 

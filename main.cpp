@@ -1,55 +1,97 @@
 #include "Asset.h"
 #include "CSVHandler.h"
+
 #include <iostream>
 #include <vector>
 #include <filesystem>
+#include <fstream>
+#include <sstream>
+#include <map>
 
 namespace fs = std::filesystem;
 
-int main() {
-    std::vector<Asset*> portfolio;
-    std::vector<std::string> folders = {"data/traditional", "data/crypto"};
+struct AssetMetadata {
+    std::string isin;
+    std::string name;
+    std::string currency;
+    std::string type;
+};
 
-    for (const std::string& current_folder : folders) {
-        if (fs::exists(current_folder) && fs::is_directory(current_folder)) {
+std::map<std::string, AssetMetadata> loadMetadata(const std::string& filepath){
+    std::map<std::string, AssetMetadata> metadata_map;
 
-            for (const auto& entry : fs::directory_iterator(current_folder)) {
+    std::ifstream file(filepath);
 
-                if (entry.is_regular_file()) {
-                    std::string full_path = entry.path().string();
-                    std::string filename = entry.path().filename().string();
-                    std::vector<double> prices = CSVHandler::readPrices(full_path);
-                    
-                    if (!prices.empty()) {
-                        std::string ticker = filename.substr(0, filename.find_last_of('.'));
+    if (!file.is_open()) {
+        std::cerr << "Error: Couldn't open file: " << filepath << std::endl;
+    }
 
-                        if (current_folder == "data/traditional") {
-                            Asset* new_asset = new TraditionalAsset(ticker, "N/A", ticker, prices);
+    std::string line;
 
-                            portfolio.push_back(new_asset);
+    if (std::getline(file, line)){}
 
-                            std::cout << "Added Traditional Asset: " << ticker << std::endl;
-                        } 
-                        else if (current_folder == "data/crypto") {
-                            Asset* new_asset = new CryptoAsset(ticker, "N/A", ticker, prices);
+    while (std::getline(file, line)){
+        std::stringstream ss(line);
 
-                            portfolio.push_back(new_asset);
-                            
-                            std::cout << "Added Crypto Asset: " << ticker << std::endl;
-                        }
-                        
-                        std::cout << "Successfully read " << prices.size() << " prices from " << filename << std::endl;
-                    } else {
-                        std::cerr << "Warning: No data extracted from " << filename << std::endl;
-                    }
-                }
-            }
+        std::string ticker, isin, name, currency, type;
 
-        } else {
-            std::cerr << "Error: Directory '" << current_folder << "' not found!" << std::endl;
+        std::getline(ss, ticker, ',');
+        std::getline(ss, isin, ',');
+        std::getline(ss, name, ',');
+        std::getline(ss, currency, ',');
+        std::getline(ss, type, ',');
+
+        if (!type.empty() && type.back() == '\r') {
+            type.pop_back();
         }
 
+        metadata_map[ticker] = {isin, name, currency, type};
     }
+
+    return metadata_map;
+}
+
+int main(int argc, char* argv[]) { 
+    std::map<std::string, AssetMetadata> dictionary = loadMetadata("data/metadata.csv");
+    
+    std::vector<Asset*> portfolio;
+    
+    for (const auto& [ticker, meta] : dictionary) {
+        std::string expected_filepath = "data/prices/" + ticker + ".csv";
+
+        if (fs::exists(expected_filepath)) {
+            
+            std::vector<double> prices = CSVHandler::readPrices(expected_filepath);
+            
+            if (!prices.empty()) {
+                if (meta.type == "Traditional") {
+                    Asset* new_asset = new TraditionalAsset(ticker, meta.isin, meta.name, meta.currency, prices);
+                    portfolio.push_back(new_asset);
+                    std::cout << "Added Traditional Asset: " << meta.name << " (" << ticker << ")\n";
+                } 
+                else if (meta.type == "Crypto") {
+                    Asset* new_asset = new CryptoAsset(ticker, meta.isin, meta.name, meta.currency, prices);
+                    portfolio.push_back(new_asset);
+                    std::cout << "Added Crypto Asset: " << meta.name << " (" << ticker << ")\n";
+                }
+                else {
+                    std::cerr << "Error: Unknown type in metadata.csv: " << meta.type << "\n";
+                }
+
+                std::cout << "  -> Successfully read " << prices.size() << " prices.\n";
+
+            } else {
+                std::cerr << "Warning: The file exists but is empty -> " << expected_filepath << "\n";
+            }
+        } 
+        else {
+            std::cerr << "Error: Missing CSV file for " << meta.name << " (" << expected_filepath << ")\n";
+        }
+    }
+
+    std::cout << "\n========================================\n";
+    std::cout << "Portfolio loaded with " << portfolio.size() << " assets." << std::endl;
+    std::cout << "========================================\n\n";
 
     for (Asset* asset : portfolio) {
         delete asset;

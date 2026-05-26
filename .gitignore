@@ -1,9 +1,16 @@
+# IDE / Editor
 .vscode/
+
+# macOS System Files
+.DS_Store
+
+# Compiled Binaries
 main
 
-# Doxygen output
+# Doxygen Generated Documentation
 doc/
 html/
 latex/
 
+# Generated Output Data
 output_frontier.csv

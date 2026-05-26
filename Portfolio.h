@@ -128,7 +128,7 @@ public:
      *   L* = (μ_p − r_f) / σ_p²
      * @endcode
      * At L*, the long-run geometric mean growth rate is maximised.
-     * In practice, Half-Kelly (L*/2) is used to account for parameter
+     * In practice, Half-Kelly (L* / 2) is used to account for parameter
      * uncertainty and gap risk not captured by the GBM assumption.
      *
      * @param risk_free_rate Annualised risk-free rate as a decimal (e.g. 0.04).

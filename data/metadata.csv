@@ -1,4 +1,5 @@
 Ticker,ISIN,Name,Currency,Type
-EWG2,DE000EWG2LD7,EUWAX Gold II,EUR,Traditional
 BTC-EUR,N/A,Bitcoin,EUR,Crypto
-VWCE,IE00BK5BQT80,Vanguard FTSE All-World UCITS ETF (USD) Accumulating,EUR,Traditional
+EUN5,IE00B3F81R35,iShares Core EUR Corporate Bond UCITS ETF (Dist),EUR,Traditional
+PPFB,IE00B4ND3602,iShares Physical Gold ETC,EUR,Traditional
+SXR8,IE00B5BMR087,iShares Core S&P 500 UCITS ETF USD (Acc),EUR,Traditional

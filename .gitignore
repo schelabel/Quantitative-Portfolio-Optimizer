@@ -1,2 +1,9 @@
 .vscode/
 main
+
+# Doxygen output
+doc/
+html/
+latex/
+
+output_frontier.csv

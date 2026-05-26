@@ -25,6 +25,12 @@ public:
     double calculateExpectedReturn() const;
     double calculateVolatility() const; 
     
+    void setWeights(const std::vector<double>& new_weights) {
+        if (new_weights.size() == assets.size()) {
+            weights = new_weights;
+        }
+    }
+    
     double getKellyCriterion(double risk_free_rate) const;
     double getGeometricMean(double risk_free_rate) const;
 

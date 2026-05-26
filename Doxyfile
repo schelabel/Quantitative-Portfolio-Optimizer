@@ -1,0 +1,85 @@
+# =============================================================================
+# Doxyfile — Quantitative Portfolio Simulator & Optimizer
+# Only the settings that differ from Doxygen defaults are listed here.
+# Run:  doxygen Doxyfile
+# Output: docs/html/index.html
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# Project identity
+# -----------------------------------------------------------------------------
+PROJECT_NAME           = "Quantitative Portfolio Optimizer"
+PROJECT_BRIEF          = "Multi-asset risk parity simulator with Monte Carlo forecasting and efficient frontier mapping"
+PROJECT_NUMBER         = 1.0.0
+
+# -----------------------------------------------------------------------------
+# Input — point Doxygen at your source files
+# -----------------------------------------------------------------------------
+# List your source directory (or individual files separated by spaces).
+# If all .h/.cpp files are in the same folder as the Doxyfile, use:
+INPUT                  = .
+# If your sources are in a subdirectory, e.g. src/:
+# INPUT                = src/
+
+# Also parse subdirectories recursively (set NO if everything is flat)
+RECURSIVE              = NO
+
+# File types to scan
+FILE_PATTERNS          = *.h *.hpp *.cpp *.cxx
+
+# Files/dirs to skip (build artefacts, data, etc.)
+EXCLUDE                = data/ output_frontier.csv
+
+# -----------------------------------------------------------------------------
+# Output
+# -----------------------------------------------------------------------------
+OUTPUT_DIRECTORY       = docs
+
+# HTML only — disable LaTeX (no pdflatex needed)
+GENERATE_HTML          = YES
+GENERATE_LATEX         = NO
+
+# Nice sidebar tree view
+GENERATE_TREEVIEW      = YES
+
+# Dark/light mode toggle button in browser
+HTML_COLORSTYLE        = TOGGLE
+
+# -----------------------------------------------------------------------------
+# What to extract
+# -----------------------------------------------------------------------------
+# Document private members (calculateLogReturns, synchronizeData, etc.)
+EXTRACT_PRIVATE        = YES
+
+# Document static members
+EXTRACT_STATIC         = YES
+
+# STL support — helps Doxygen understand std::vector, std::string params
+BUILTIN_STL_SUPPORT    = YES
+
+# -----------------------------------------------------------------------------
+# Source browser (click-through to source in the HTML docs)
+# -----------------------------------------------------------------------------
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO      # set YES to embed full function bodies inline
+
+# -----------------------------------------------------------------------------
+# Warnings — keep these strict while writing docs
+# -----------------------------------------------------------------------------
+WARNINGS               = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_IF_INCOMPLETE_DOC = YES
+
+# -----------------------------------------------------------------------------
+# Diagrams — requires Graphviz (https://graphviz.org) to be installed
+# Set HAVE_DOT = NO if you don't have Graphviz; everything else still works.
+# -----------------------------------------------------------------------------
+HAVE_DOT               = YES          # flip to NO if dot/graphviz not installed
+DOT_NUM_THREADS        = 0            # auto-detect CPU cores
+CLASS_GRAPH            = YES          # Asset → TraditionalAsset / CryptoAsset tree
+COLLABORATION_GRAPH    = YES          # shows which classes use which
+CALL_GRAPH             = NO           # expensive; enable per-function with \callgraph
+CALLER_GRAPH           = NO
+DOT_IMAGE_FORMAT       = svg          # sharper than png at any zoom level
+INTERACTIVE_SVG        = YES          # pan/zoom in browser
